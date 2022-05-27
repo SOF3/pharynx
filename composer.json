@@ -1,0 +1,42 @@
+{
+    "name": "sof3/pharynx",
+    "type": "project",
+    "require": {
+        "php": ">=8.0"
+    },
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "^3.4",
+        "phpstan/phpstan": "^1.7",
+        "phpunit/phpunit": "^9.5"
+    },
+    "license": "Apache-2.0",
+    "authors": [
+        {
+            "name": "SOFe",
+            "email": "sofe2038@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "SOFe\\Pharynx\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "SOFe\\Pharynx\\": ["tests", "build.php"]
+        }
+    },
+    "scripts": {
+        "fmt": [
+            "composer install",
+            "php-cs-fixer fix"
+        ],
+        "lint": [
+            "composer install",
+            "phpstan analyze"
+        ],
+        "build": [
+            "php build.php"
+        ]
+    }
+}
