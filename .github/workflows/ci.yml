@@ -34,7 +34,7 @@ jobs:
           php-version: ${{matrix.php-version}}
           install-path: "./dev/bin"
       - run: curl https://getcomposer.org/installer | php
-      - name: phpstan analyze
+      - name: run unit tests
         run: composer test
   fmt:
     name: code style check
