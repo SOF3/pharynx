@@ -13,11 +13,13 @@ use function token_get_all;
 use function trim;
 
 final class PhpFile {
+    /**
+     * @param PsrItem[] $items
+     */
     public function __construct(
         public string $originalPath,
         public string $header,
         public string $namespace,
-        /** @var list<PsrItem> */
         public array $items,
     ) {
     }
@@ -53,11 +55,11 @@ final class PhpFile {
         $lineNo = substr_count($header, "\n");
         $items = [];
         while (count($tokens) > 0) {
-            $item = self::findNextItem($filePath,$tokens, $lineNo);
+            $item = self::findNextItem($filePath, $tokens, $lineNo);
             if ($item !== null) {
                 Terminal::print("Parsed item {$item->name} on line {$item->startingLine}");
                 $items[] = $item;
-                $lineNo += substr_count($item->code, "\n");
+                $lineNo = $item->startingLine + substr_count($item->code, "\n");
             } else {
                 $offset = 0;
                 self::skipWhitespace($tokens, $outstanding, $offset);
@@ -91,13 +93,20 @@ final class PhpFile {
             $j = $i;
             self::skipWhitespace($tokens, $nameToken, $j);
 
+            // This allows `use function`/`use const`
+            if ($nameToken->id === T_FUNCTION || $nameToken->id === T_CONST) {
+                self::skipWhitespace($tokens, $nameToken, $j);
+            }
+
             if ($nameToken->id === T_NAME_QUALIFIED || $nameToken->id === T_STRING) {
+                // we seek until `;`, ignoring whatever curly braces we encounter in between.
+                // This function does not require `;` to immediately follow `T_NAME_QUALIFIED`/`T_STRING`.
                 if (self::seekPunct($tokens, $j, ";")) {
                     $lastUseToken = $j + 1;
                 }
             }
 
-            $i += 1;
+            $i = $lastUseToken;
         }
 
         return $lastUseToken;
@@ -110,7 +119,11 @@ final class PhpFile {
         // skip until the class/interface/trait keyword
         $start = null;
         $itemName = null;
-        for ($i = 0; $i < count($tokens); $i++) {
+
+        $startOffset = 0;
+        self::skipWhitespace($tokens, $_, $startOffset);
+
+        for ($i = $startOffset; $i < count($tokens); $i++) {
             $token = $tokens[$i];
             if ($token->id === T_CLASS || $token->id === T_INTERFACE || $token->id === T_TRAIT) {
                 self::skipWhitespace($tokens, $nameToken, $i);
@@ -157,9 +170,13 @@ final class PhpFile {
         }
         /** @var int $until */
 
+        for ($i = 0; $i < $startOffset; $i++) {
+            $startingLine += substr_count($tokens[$i]->code, "\n");
+        }
+
         // code is $tokens[0..$until]
         $code = "";
-        for ($i = 0; $i < $until; $i++) {
+        for ($i = $startOffset; $i < $until; $i++) {
             $code .= $tokens[$i]->code;
         }
 
