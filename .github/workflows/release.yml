@@ -27,7 +27,7 @@ jobs:
         run: |
           tag=$(echo ${{github.ref}} | cut -d/ -f3)
           echo ::set-output name=TAG::$tag
-          echo ::set-output name=BODY::(git tag -l --format='%(contents)' $tag)
+          echo ::set-output name=BODY::$(git tag -l --format='%(contents)' $tag)
       - name: Create draft release
         uses: ncipollo/release-action@v1.10.0
         with:
