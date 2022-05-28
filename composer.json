@@ -40,7 +40,7 @@
             "phpunit tests"
         ],
         "build": [
-            "php build.php"
+            "php -dphar.readonly=0 build.php"
         ]
     }
 }
