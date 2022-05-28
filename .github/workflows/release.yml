@@ -22,7 +22,9 @@ jobs:
       - name: Compute tag
         id: compute-tag
         run: |
-          echo ::set-output name=TAG::$(echo ${{github.ref}} | cut -d/ -f3)
+          tag=$(echo ${{github.ref}} | cut -d/ -f3)
+          echo ::set-output name=TAG::$tag
+          echo ::set-output name=BODY::(git tag -l --format='%(contents)' $tag)
       - name: Create draft release
         uses: ncipollo/release-action@v1.10.0
         with:
@@ -32,4 +34,4 @@ jobs:
           name: Version ${{ steps.compute-tag.outputs.TAG }}
           tag: ${{ steps.compute-tag.outputs.TAG }}
           token: ${{ secrets.GITHUB_TOKEN }}
-          body: "Version ${{ steps.compute-tag.outputs.TAG }}"
+          body: ${{ steps.compute-tag.outputs.BODY }}
