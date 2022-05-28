@@ -129,7 +129,7 @@ final class Args {
     }
 
     public static function cliUsage() : RuntimeException {
-        echo "Usage:\n";
+        echo "USAGE\n";
         echo "  -v           : Enable verbose output.\n";
         echo "  -i PATH      : Equivalent to `-i plugin.yml:PATH/plugin.yml -i PATH/resources -s PATH/src`.\n";
         echo "  -f NAME:PATH : Copy the file or directory at PATH to output/NAME.\n";
@@ -144,6 +144,9 @@ final class Args {
         echo "                 If no value is given, uses the path in `-o` followed by `.phar`.\n";
         echo "                 If neither -o nor -p are passed, or only `-p` is passed but without values,\n";
         echo "                 `-p output.phar` is assumed.\n";
+        echo "\n";
+        echo "EXAMPLE\n";
+        echo "  php pharynx.phar -i path/to/your/plugin -p output.phar\n";
         exit(1);
     }
 }
