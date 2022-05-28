@@ -12,71 +12,48 @@ use RecursiveIteratorIterator;
 use function bin2hex;
 use function file_exists;
 use function is_dir;
+use function is_file;
 use function random_bytes;
-use function realpath;
-use function rename;
 use function str_repeat;
 use function str_replace;
 use function substr;
 use function substr_count;
 use function sys_get_temp_dir;
-use function tempnam;
-use function unlink;
 
 final class Main {
     public static function main() : void {
-        global $argv;
+        $args = Args::parse();
 
-        if (!isset($argv[2])) {
-            throw Terminal::fatal("Usage: php $argv[0] <plugin directory> <output phar>");
+        if ($args->outputPhar !== null && file_exists($args->outputPhar)) {
+            Terminal::print("Removing old $args->outputPhar", $args->verbose);
+            Files::delete($args->outputPhar);
         }
 
-        $input = $argv[1];
-        $output = $argv[2];
-
-        if (!is_dir($input)) {
-            throw Terminal::fatal("$input is not a directory");
+        $outputDir = $args->outputDir ?? sys_get_temp_dir() . "/" . bin2hex(random_bytes(4));
+        if (is_dir($outputDir)) {
+            Terminal::print("Removing old $args->outputDir", $args->verbose);
+            Files::recursiveDelete($outputDir);
         }
 
-        $input = realpath($input);
-        if ($input === false) {
-            throw Terminal::fatal("Cannot canonicalize input directory");
-        }
-
-        if (!file_exists($input . "/plugin.yml")) {
-            throw Terminal::fatal("$input/plugin.yml does not exist");
-        }
-
-        if (file_exists($output)) {
-            // move it to a new file first, to avoid race conditions
-            $newFile = tempnam(sys_get_temp_dir(), "rmf");
-            if ($newFile === false) {
-                throw Terminal::fatal("Cannot create temp file");
+        foreach ($args->inputFiles as [$name, $path]) {
+            if (is_file($path)) {
+                Files::copy($path, $outputDir . "/" . $name);
+            } elseif (is_dir($path)) {
+                Files::recursiveCopy($path, $outputDir . "/" . $name);
+            } else {
+                throw Terminal::fatal("Unsupported file type at $path");
             }
-
-            rename($output, $newFile);
-            unlink($newFile);
         }
 
-        $tmp = sys_get_temp_dir() . "/" . bin2hex(random_bytes(4));
-        Files::mkdir($tmp);
-
-        Files::copy($input . "/plugin.yml", $tmp . "/plugin.yml");
-        Files::recursiveCopy($input . "/resources", $tmp . "/resources");
-        Files::mkdir($tmp . "/src");
-
-        $phar = new Phar($output);
-        $phar->setStub("<?php __HALT_COMPILER();");
+        Files::mkdir($outputDir . "/" . $args->outputSourceRoot);
 
         $files = [];
-        foreach (["src", "gen"] as $sourceRoot) {
-            if (file_exists($input . "/" . $sourceRoot)) {
-                self::parseFiles($input . "/" . $sourceRoot, $files);
-            }
+        foreach ($args->sourceRoots as $sourceRoot) {
+            self::parseFiles($sourceRoot, $files, $args->verbose);
         }
 
         foreach ($files as $file) {
-            $nsDir = $tmp . "/src/" . str_replace("\\", "/", $file->namespace);
+            $nsDir = $outputDir . "/" . $args->outputSourceRoot . "/" . str_replace("\\", "/", $file->namespace);
             if (!file_exists($nsDir)) {
                 Files::mkdir($nsDir);
             }
@@ -86,21 +63,34 @@ final class Main {
             }
         }
 
-        $phar->buildFromDirectory($tmp);
+        if ($args->outputPhar !== null) {
+            $phar = new Phar($args->outputPhar);
+            $phar->setStub("<?php __HALT_COMPILER();");
+            $phar->buildFromDirectory($outputDir);
+        }
 
-        Files::recursiveDelete($tmp);
+        if ($args->outputDir === null) {
+            Terminal::print("Removing temp directory", $args->verbose);
+            Files::recursiveDelete($outputDir);
+        } else {
+            Terminal::print("Output directory created at $args->outputDir", true);
+        }
+
+        if ($args->outputPhar !== null) {
+            Terminal::print("Generated phar at $args->outputPhar", true);
+        }
     }
 
     /**
      * @param list<PhpFile> $files
      */
-    private static function parseFiles(string $src, array &$files) : void {
+    private static function parseFiles(string $src, array &$files, bool $verbose) : void {
         foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator($src, RecursiveDirectoryIterator::CURRENT_AS_PATHNAME)) as $file) {
             if (substr($file, -4) !== ".php") {
                 continue;
             }
 
-            $files[] = PhpFile::parse($file);
+            $files[] = PhpFile::parse($file, $verbose);
         }
     }
 
@@ -114,7 +104,7 @@ final class Main {
             if ($padding > 0) {
                 yield str_repeat("\n", $padding);
             } elseif ($padding < 0) {
-                Terminal::print("Assumption failed: statringLine $item->startingLine < headerLines $headerLines");
+                Terminal::print("Assumption failed: statringLine $item->startingLine < headerLines $headerLines", true);
             }
 
             yield $item->code;

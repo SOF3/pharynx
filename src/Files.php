@@ -40,6 +40,10 @@ final class Files {
         self::tryFalse(@copy($src, $dest), "copy $src to $dest");
     }
 
+    public static function delete(string $src) : void {
+        self::tryFalse(@unlink($src), "delete $src");
+    }
+
     public static function mkdir(string $dir) : void {
         self::tryFalse(@mkdir($dir, 0770, true), "create directory $dir");
     }
@@ -100,9 +104,7 @@ final class Files {
             $path = $src . "/" . $entry;
 
             if (is_file($path)) {
-                if (!unlink($path)) {
-                    throw Terminal::fatal("Failed to unlink $path");
-                }
+                self::delete($path);
             } elseif (is_dir($path)) {
                 self::recursiveDelete($path);
             } else {

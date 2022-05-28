@@ -102,12 +102,12 @@ function recursiveDelete(string $src) : void {
     rmdir($src);
 }
 
-if (file_exists("output.phar")) {
-    println("Removing old output.phar");
+if (file_exists("pharynx.phar")) {
+    println("Removing old pharynx.phar");
 
     // move it to a new file first, to avoid race conditions
     $newFile = tempnam(sys_get_temp_dir(), "rmf");
-    rename("output.phar", $newFile);
+    rename("pharynx.phar", $newFile);
     unlink($newFile);
 }
 
@@ -129,7 +129,7 @@ println("Packing files to temp directory $tmp");
 recursiveCopy("src", $tmp . "/src");
 recursiveCopy("vendor", $tmp . "/vendor");
 
-$phar = new Phar("output.phar");
+$phar = new Phar("pharynx.phar");
 $phar->setStub(<<<'EOF'
     #!/usr/bin/env php
     <?php
@@ -138,7 +138,7 @@ $phar->setStub(<<<'EOF'
         exit(1);
     }
     require "phar://" . __FILE__ . "/vendor/autoload.php";
-    \SOFe\Pharynx\Main::main();
+    \SOFe\Pharynx\Main::main($argv);
     __HALT_COMPILER();
     EOF);
 $phar->buildFromDirectory($tmp);

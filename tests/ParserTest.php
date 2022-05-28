@@ -15,7 +15,7 @@ use function substr_count;
 final class ParserTest extends TestCase {
     public function testParse() {
         $testData = file_get_contents(__DIR__ . "/sample.phpt");
-        $actual = PhpFile::parse(__DIR__ . "/sample.phpt");
+        $actual = PhpFile::parse(__DIR__ . "/sample.phpt", true);
 
         self::assertEquals(__DIR__ . "/sample.phpt", $actual->originalPath);
         self::assertEquals("Foo\\Bar", $actual->namespace);

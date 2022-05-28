@@ -24,8 +24,8 @@ final class PhpFile {
     ) {
     }
 
-    public static function parse(string $filePath) : self {
-        Terminal::print("Parsing $filePath");
+    public static function parse(string $filePath, bool $verbose) : self {
+        Terminal::print("Parsing $filePath", $verbose);
 
         $phpCode = Files::read($filePath);
         $rawTokens = token_get_all($phpCode);
@@ -57,7 +57,7 @@ final class PhpFile {
         while (count($tokens) > 0) {
             $item = self::findNextItem($filePath, $tokens, $lineNo);
             if ($item !== null) {
-                Terminal::print("Parsed item {$item->name} on line {$item->startingLine}");
+                Terminal::print("Parsed item {$item->name} on line {$item->startingLine}", $verbose);
                 $items[] = $item;
                 $lineNo = $item->startingLine + substr_count($item->code, "\n");
             } else {
