@@ -10,6 +10,7 @@ use function basename;
 use function count;
 use function getopt;
 use function is_array;
+use function is_dir;
 use function rtrim;
 use function strlen;
 use function strpos;
@@ -96,7 +97,9 @@ final class Args {
         if ($inputDir !== null) {
             $inputDir = rtrim($inputDir, "/\\");
             array_unshift($inputFiles, ["plugin.yml", "$inputDir/plugin.yml"]);
-            array_unshift($inputFiles, ["resources", "$inputDir/resources"]);
+            if (is_dir("resources")) {
+                array_unshift($inputFiles, ["resources", "$inputDir/resources"]);
+            }
             array_unshift($sourceRoots, "$inputDir/src");
         }
 

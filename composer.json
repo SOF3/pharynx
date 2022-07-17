@@ -27,6 +27,13 @@
         }
     },
     "scripts": {
+        "all": [
+            "composer install",
+            "php-cs-fixer fix",
+            "phpstan analyze",
+            "phpunit tests",
+            "php -dphar.readonly=0 build.php"
+        ],
         "fmt": [
             "composer install",
             "php-cs-fixer fix"

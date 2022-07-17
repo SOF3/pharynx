@@ -35,6 +35,8 @@ final class Main {
             Files::recursiveDelete($outputDir);
         }
 
+        Files::mkdir($outputDir);
+
         foreach ($args->inputFiles as [$name, $path]) {
             if (is_file($path)) {
                 Files::copy($path, $outputDir . "/" . $name);
