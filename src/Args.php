@@ -148,8 +148,15 @@ final class Args {
         echo "                 If neither -o nor -p are passed, or only `-p` is passed but without values,\n";
         echo "                 `-p output.phar` is assumed.\n";
         echo "\n";
-        echo "EXAMPLE\n";
-        echo "  php pharynx.phar -i path/to/your/plugin -p output.phar\n";
+        echo "EXAMPLES\n";
+        echo "  Package a plugin phar:\n";
+        echo "  $ php pharynx.phar -i path/to/your/plugin -p my-plugin.phar\n";
+        echo "\n";
+        echo "  Bundle output to a directory without building phar\n";
+        echo "  $ php pharynx.phar -i path/to/your/plugin -o output\n";
+        echo "\n";
+        echo "  Package a plugin phar to output.phar, along with generated files in a gen directory:\n";
+        echo "  $ php pharynx.phar -i path/to/your/plugin -s path/to/gen\n";
         exit(1);
     }
 }
