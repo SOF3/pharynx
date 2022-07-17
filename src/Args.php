@@ -131,7 +131,7 @@ final class Args {
     public static function cliUsage() : RuntimeException {
         echo "USAGE\n";
         echo "  -v           : Enable verbose output.\n";
-        echo "  -i PATH      : Equivalent to `-i plugin.yml:PATH/plugin.yml -i PATH/resources -s PATH/src`.\n";
+        echo "  -i PATH      : Equivalent to `-f plugin.yml:PATH/plugin.yml -f PATH/resources -s PATH/src`.\n";
         echo "  -f NAME:PATH : Copy the file or directory at PATH to output/NAME.\n";
         echo "                 `:` is not considered as a separator if immediately followed by a backslash.\n";
         echo "                 Can be passed multiple times.\n";
