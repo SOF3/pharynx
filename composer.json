@@ -26,6 +26,7 @@
             "SOFe\\Pharynx\\": ["tests"]
         }
     },
+    "bin": ["pharynx"],
     "scripts": {
         "all": [
             "composer install",
