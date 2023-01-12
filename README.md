@@ -5,7 +5,7 @@ A tool to recompile PHP sources into a phar in PSR-0
 ```txt
 USAGE
   -v           : Enable verbose output.
-  -i PATH      : Equivalent to `-i plugin.yml:PATH/plugin.yml -i PATH/resources -s PATH/src`.
+  -i PATH      : Equivalent to `-f plugin.yml:PATH/plugin.yml -f PATH/resources -s PATH/src`.
   -f NAME:PATH : Copy the file or directory at PATH to output/NAME.
                  `:` is not considered as a separator if immediately followed by a backslash.
                  Can be passed multiple times.
@@ -22,3 +22,11 @@ USAGE
 EXAMPLE
   php pharynx.phar -i path/to/your/plugin -p output.phar
 ```
+
+## Use with PocketMine plugins
+
+Download start.cmd/start.sh, pharynx.phar and bootstrap-plugin-dev.php from [releases](https://github.com/SOF3/pharynx/releases)
+and copy them to your PocketMine install directory.
+Replace PocketMine's start.cmd/start.sh with the one you downloaded.
+Edit start.sh/start.cmd and change the `PLUGIN_PATH` from `"dev"` to your plugin path (the directory containing plugin.yml).
+Then just start the server as usual!

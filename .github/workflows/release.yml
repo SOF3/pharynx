@@ -31,7 +31,7 @@ jobs:
       - name: Create draft release
         uses: ncipollo/release-action@v1.10.0
         with:
-          artifacts: ${{ github.workspace }}/pharynx.phar
+          artifacts: ${{ github.workspace }}/pharynx.phar,plugin-dev/*
           commit: ${{ github.sha }}
           draft: true
           name: Version ${{ steps.compute-tag.outputs.TAG }}
