@@ -97,7 +97,7 @@ final class Args {
         if ($inputDir !== null) {
             $inputDir = rtrim($inputDir, "/\\");
             array_unshift($inputFiles, ["plugin.yml", "$inputDir/plugin.yml"]);
-            if (is_dir("resources")) {
+            if (is_dir("$inputDir/resources")) {
                 array_unshift($inputFiles, ["resources", "$inputDir/resources"]);
             }
             array_unshift($sourceRoots, "$inputDir/src");
