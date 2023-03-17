@@ -38,6 +38,25 @@ final class ParserTest extends TestCase {
         self::assertEquals(self::findLineOfFirst($testData, "trait Treit"), $actual->items[3]->startingLine);
     }
 
+    public function testParse8_1() {
+        if(version_compare(PHP_VERSION, "8.1.0", "<")){
+            self::markTestSkipped("test was skipped: php version(".PHP_VERSION.") is lower than 8.1.0");
+        }
+        $testData = file_get_contents(__DIR__ . "/sample-8.1.phpt");
+        $actual = PhpFile::parse(__DIR__ . "/sample-8.1.phpt", true);
+
+        $expectHeader = rtrim(substr($testData, 0, strpos($testData, "/** This is not part of header *")));
+        self::assertEquals($expectHeader, $actual->header);
+
+        self::assertEquals(2, count($actual->items));
+        
+        self::assertEquals("BasicEnum", $actual->items[0]->name);
+        self::assertEquals(self::findLineOfFirst($testData, "enum BasicEnum"), $actual->items[0]->startingLine + 1); // + 1 because of doccomment line
+        
+        self::assertEquals("BackedEnum", $actual->items[1]->name);
+        self::assertEquals(self::findLineOfFirst($testData, "enum BackedEnum"), $actual->items[1]->startingLine);
+    }
+
     private static function findLineOfFirst(string $haystack, string $needle) : ?int {
         $pos = strpos($haystack, $needle);
         if ($pos === false) {
