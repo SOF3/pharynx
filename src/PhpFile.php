@@ -7,6 +7,7 @@ namespace SOFe\Pharynx;
 use function array_slice;
 use function assert;
 use function count;
+use function defined;
 use function is_array;
 use function substr_count;
 use function token_get_all;
@@ -116,7 +117,7 @@ final class PhpFile {
      * @param PhpToken[] $tokens
      */
     private static function findNextItem(string $filePath, array &$tokens, int $startingLine) : ?PsrItem {
-        // skip until the class/interface/trait keyword
+        // skip until the class/interface/trait/enum(>=8.1) keyword
         $start = null;
         $itemName = null;
 
@@ -125,10 +126,10 @@ final class PhpFile {
 
         for ($i = $startOffset; $i < count($tokens); $i++) {
             $token = $tokens[$i];
-            if ($token->id === T_CLASS || $token->id === T_INTERFACE || $token->id === T_TRAIT) {
+            if ($token->id === T_CLASS || $token->id === T_INTERFACE || $token->id === T_TRAIT || (defined('T_ENUM') && $token->id === T_ENUM)) {
                 self::skipWhitespace($tokens, $nameToken, $i);
                 if ($nameToken->id !== T_STRING) {
-                    throw Terminal::fatal("Error parsing $filePath: Expected T_STRING after T_CLASS/T_INTERFACE/T_TRAIT");
+                    throw Terminal::fatal("Error parsing $filePath: Expected T_STRING after T_CLASS/T_INTERFACE/T_TRAIT/T_EMUM");
                 }
                 $itemName = trim($nameToken->code);
                 $start = $i;
