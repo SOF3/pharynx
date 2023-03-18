@@ -7,6 +7,7 @@ namespace SOFe\Pharynx;
 use function array_slice;
 use function assert;
 use function count;
+use function defined;
 use function is_array;
 use function substr_count;
 use function token_get_all;
