@@ -5,21 +5,29 @@ declare(strict_types=1);
 namespace SOFe\Pharynx;
 
 use RuntimeException;
+use SOFe\Pharynx\Virion\VirionProcessor;
+
 use function array_unshift;
 use function basename;
+use function bin2hex;
 use function count;
 use function getopt;
 use function is_array;
 use function is_dir;
+use function is_file;
+use function random_bytes;
 use function rtrim;
 use function strlen;
 use function strpos;
+use function strrpos;
 use function substr;
+use function yaml_parse_file;
 
 final class Args {
     /**
      * @param array{string, string}[] $inputFiles
      * @param string[] $sourceRoots
+     * @param Processor[] $processors
      */
     private function __construct(
         public array $inputFiles,
@@ -28,11 +36,12 @@ final class Args {
         public ?string $outputDir,
         public ?string $outputPhar,
         public bool $verbose,
+        public array $processors,
     ) {
     }
 
     public static function parse() : self {
-        $opts = getopt("vi:f:s:r:o:p::", []);
+        $opts = getopt("vi:f:s:r:o:p::a:e:", []);
 
         $inputDir = isset($opts["i"]) ? $opts["i"] : null;
         if (is_array($inputDir)) {
@@ -121,6 +130,28 @@ final class Args {
             throw self::cliUsage();
         }
 
+        /** @var Processor[] $processors */
+        $processors = [];
+
+        $epitope = "libs\\_" . bin2hex(random_bytes(8));
+        if ($inputDir !== null && is_file($inputDir . "/plugin.yml")) {
+            $pluginYml = yaml_parse_file($inputDir . "/plugin.yml");
+            if (isset($pluginYml["main"])) {
+                $main = $pluginYml["main"];
+                $lastNsSep = strrpos($main, "\\");
+                if ($lastNsSep !== false) {
+                    $epitope = substr($main, 0, $lastNsSep + 1) . $epitope;
+                }
+            }
+        }
+
+        /** @var string[] $antigens */
+        $antigens = isset($opts["a"]) ? (array) $opts["a"] : [];
+
+        foreach ($antigens as $antigen) {
+            $processors[] = new VirionProcessor($antigen, $epitope);
+        }
+
         return new self(
             inputFiles: $inputFiles,
             sourceRoots: $sourceRoots,
@@ -128,6 +159,7 @@ final class Args {
             outputDir: $outputDir,
             outputPhar: $outputPhar,
             verbose: isset($opts["v"]),
+            processors: $processors,
         );
     }
 
@@ -147,6 +179,8 @@ final class Args {
         echo "                 If no value is given, uses the path in `-o` followed by `.phar`.\n";
         echo "                 If neither -o nor -p are passed, or only `-p` is passed but without values,\n";
         echo "                 `-p output.phar` is assumed.\n";
+        echo "  -c CLASS     : The class names of plugins to run\n";
+        echo "                 Can be passed multiple times\n";
         echo "\n";
         echo "EXAMPLES\n";
         echo "  Package a plugin phar:\n";

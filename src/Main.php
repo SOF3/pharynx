@@ -54,6 +54,10 @@ final class Main {
             self::parseFiles($sourceRoot, $files, $args->verbose);
         }
 
+        foreach ($args->processors as $processor) {
+            $processor->process($files);
+        }
+
         foreach ($files as $file) {
             $nsDir = $outputDir . "/" . $args->outputSourceRoot . "/" . str_replace("\\", "/", $file->namespace);
             if (!file_exists($nsDir)) {
@@ -92,7 +96,8 @@ final class Main {
                 continue;
             }
 
-            $files[] = PhpFile::parse($file, $verbose);
+            $phpFile = PhpFile::parse($file, $verbose);
+            $files[] = $phpFile;
         }
     }
 
@@ -106,7 +111,7 @@ final class Main {
             if ($padding > 0) {
                 yield str_repeat("\n", $padding);
             } elseif ($padding < 0) {
-                Terminal::print("Assumption failed: statringLine $item->startingLine < headerLines $headerLines", true);
+                Terminal::print("Assumption failed: startingLine $item->startingLine < headerLines $headerLines", true);
             }
 
             yield $item->code;

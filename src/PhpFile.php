@@ -29,7 +29,7 @@ final class PhpFile {
         Terminal::print("Parsing $filePath", $verbose);
 
         $phpCode = Files::read($filePath);
-        $rawTokens = token_get_all($phpCode);
+        $rawTokens = token_get_all($phpCode, TOKEN_PARSE);
 
         $tokens = [];
 
