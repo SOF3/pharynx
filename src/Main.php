@@ -91,6 +91,12 @@ final class Main {
      * @param list<PhpFile> $files
      */
     private static function parseFiles(string $src, array &$files, bool $verbose) : void {
+        if (is_file($src)) {
+            $phpFile = PhpFile::parse($src, $verbose);
+            $files[] = $phpFile;
+            return;
+        }
+
         foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator($src, RecursiveDirectoryIterator::CURRENT_AS_PATHNAME)) as $file) {
             if (substr($file, -4) !== ".php") {
                 continue;

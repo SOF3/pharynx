@@ -152,14 +152,18 @@ final class PhpFile {
         /** @var ?int $until */
         $until = null;
         while ($i < count($tokens)) {
-            $punct = trim($tokens[$i]->code);
-            if ($punct === "{") {
-                $pairs += 1;
-            } elseif ($punct === "}") {
-                $pairs -= 1;
-                if ($pairs === 0) {
-                    $until = $i + 1;
-                    break;
+            $token = $tokens[$i];
+
+            if ($token->id === null || $token->id === T_CURLY_OPEN) {
+                $punct = trim($token->code);
+                if ($punct === "{") {
+                    $pairs += 1;
+                } elseif ($punct === "}") {
+                    $pairs -= 1;
+                    if ($pairs === 0) {
+                        $until = $i + 1;
+                        break;
+                    }
                 }
             }
 
@@ -219,7 +223,10 @@ final class PhpFile {
                     throw Terminal::fatal("Error parsing $filePath: Expected semicolon after namespace, got end of file");
                 }
                 if (trim($semi->code) !== ";") {
-                    throw Terminal::fatal("Error parsing $filePath: Expected semicolon after namespace, got " . $namespace->printId());
+                    if ($semi->code[0] === "{") {
+                        throw Terminal::fatal("Error parsing $filePath: pharynx currently does not support multiple namespaces in the same file, please use `namespace xxx;` instead of `namespace xxx {}`.");
+                    }
+                    throw Terminal::fatal("Error parsing $filePath: Expected semicolon after namespace, got " . $semi->printId());
                 }
             }
         }
