@@ -1,0 +1,22 @@
+name: pharynx
+description: "Compile plugin with pharynx"
+inputs:
+  plugin-dir:
+    description: "Directory containing plugin.yml and composer.json"
+    default: "${{github.workspace}}"
+  composer:
+    description: "Whether pharynx should include composer from {plugin-dir}/composer.json"
+    default: "true"
+  composer-version:
+    description: "Composer version to use"
+    default: "2.5.5"
+  pharynx-version:
+    description: "Pharynx version to use"
+    default: "3.0.0-alpha1"
+  additional-sources:
+    description: "Additional sources other than {plugin-dir}/src, separated by colon, absolute or relative to workspace"
+    default: ""
+
+runs:
+  using: "node16"
+  main: "index.js"

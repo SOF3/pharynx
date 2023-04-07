@@ -1,6 +1,5 @@
 {
     "name": "sof3/pharynx",
-    "type": "project",
     "require": {
         "php": ">=8.0"
     },
