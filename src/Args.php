@@ -295,11 +295,11 @@ final class Args {
                 throw Terminal::fatal("$path/composer.json has an invalid x-virion");
             }
 
-            if (!isset($virion["specVersion"])) {
-                throw Terminal::fatal("$path/composer.json does not declare x-virion.specVersion");
+            if (!isset($virion["spec"])) {
+                throw Terminal::fatal("$path/composer.json does not declare x-virion.spec");
             }
 
-            $specVersion = $virion["specVersion"];
+            $specVersion = $virion["spec"];
             if (version_compare($specVersion, "3.0", ">")) {
                 throw Terminal::fatal("$path/composer.json requires a new virion spec version $specVersion which is not supported by this version of pharynx");
             }
@@ -307,15 +307,15 @@ final class Args {
                 throw Terminal::fatal("$path/composer.json requires an old virion spec version $specVersion which is not supported by this version of pharynx");
             }
 
-            if (!isset($virion["antigen"])) {
-                throw Terminal::fatal("$path/composer.json does not declare x-virion.antigen");
+            if (!isset($virion["namespace-root"])) {
+                throw Terminal::fatal("$path/composer.json does not declare x-virion.namespace-root");
             }
 
-            $antigen = $virion["antigen"];
+            $antigen = $virion["namespace-root"];
             $this->processors[] = new VirionProcessor($antigen, $epitope);
-            Terminal::print("Info: antigen $antigen will be shaded", $this->verbose);
+            Terminal::print("Info: namespace root $antigen will be shaded", $this->verbose);
         } elseif ($name !== null) { // not root
-            Terminal::print("Warning: dependency {$name} does not declare any antigens, please consider declaring it in parent libraries", true);
+            Terminal::print("Warning: dependency {$name} does not declare a namespace root, please consider declaring it in parent libraries", true);
         }
     }
 
