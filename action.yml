@@ -17,6 +17,12 @@ inputs:
     description: "Additional sources other than {plugin-dir}/src, separated by colon, absolute or relative to workspace"
     default: ""
 
+outputs:
+  output-phar:
+    description: Absolute path to the phar file compiled
+  output-dir:
+    description: Absolute path to the directory containing the bundled plugin before archive
+
 runs:
   using: "node16"
   main: "index.js"
