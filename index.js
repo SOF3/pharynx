@@ -51,13 +51,14 @@ const additionalSources = core.getInput("additionalSources").split(":").filter(s
         yield exec.exec("php", [composerPharPath, "install", "--no-interaction", "--ignore-platform-reqs"]);
     }
     core.info(`Downloading pharynx from https://github.com/SOF3/pharynx/releases/download/${pharynxVersion}/pharynx.phar`);
-    const pharynxPath = yield tc.downloadTool(`https://github.com/SOF3/pharynx/releases/download/${pharynxVersion}/pharynx.phar`);
+    const pharynxDownload = yield tc.downloadTool(`https://github.com/SOF3/pharynx/releases/download/${pharynxVersion}/pharynx.phar`);
+    const pharynxPharPath = yield tc.cacheFile(pharynxDownload, "pharynx.phar", "pharynx", pharynxVersion);
     const outputId = crypto.randomBytes(8).toString("hex");
     const outputDir = path.join("/tmp", outputId);
     const outputPhar = path.join("/tmp", `${outputId}.phar`);
     let args = [
         "-dphar.readonly=0",
-        pharynxPath,
+        pharynxPharPath,
         "-i", pluginDir,
         "-o", outputDir,
         `-p=${outputPhar}`,
