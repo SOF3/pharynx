@@ -33,7 +33,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const crypto = __importStar(require("crypto"));
-const fs = __importStar(require("fs"));
 const path = __importStar(require("path"));
 const core = __importStar(require("@actions/core"));
 const exec = __importStar(require("@actions/exec"));
@@ -73,7 +72,6 @@ const additionalSources = core.getInput("additionalSources").split(":").filter(s
         args.push("-s", additionalSource);
     }
     yield exec.exec("php", args);
-    core.warning(`/tmp: ${fs.readdirSync("/tmp")}`);
     core.setOutput("output-dir", outputDir);
     core.setOutput("output-phar", outputPhar);
 }))();
