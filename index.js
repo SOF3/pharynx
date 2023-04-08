@@ -70,6 +70,7 @@ const additionalSources = core.getInput("additionalSources").split(":").filter(s
     for (const additionalSource of additionalSources) {
         args.push("-s", additionalSource);
     }
+    yield exec.exec("php", ["-v"]);
     yield exec.exec("php", args);
     yield exec.exec("ls", ["/tmp"]);
     core.warning(`/tmp: ${fs.readdirSync("/tmp")}`);
