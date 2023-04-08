@@ -71,6 +71,7 @@ const additionalSources = core.getInput("additionalSources").split(":").filter(s
         args.push("-s", additionalSource);
     }
     yield exec.exec("php", args);
+    yield exec.exec("ls", ["/tmp"]);
     core.warning(`/tmp: ${fs.readdirSync("/tmp")}`);
     core.setOutput("output-dir", outputDir);
     core.setOutput("output-phar", outputPhar);
