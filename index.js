@@ -45,10 +45,12 @@ const additionalSources = core.getInput("additionalSources").split(":").filter(s
 (() => __awaiter(void 0, void 0, void 0, function* () {
     let composerPharPath;
     if (composer) {
+        core.info(`Downloading composer from https://github.com/composer/composer/releases/download/${composerVersion}/composer.phar`);
         const download = yield tc.downloadTool(`https://github.com/composer/composer/releases/download/${composerVersion}/composer.phar`);
         composerPharPath = yield tc.cacheFile(download, "composer.phar", "composer", composerVersion);
         yield exec.exec("php", [composerPharPath, "install", "--no-interaction", "--ignore-platform-reqs"]);
     }
+    core.info(`Downloading pharynx from https://github.com/SOF3/pharynx/releases/download/${pharynxVersion}/pharynx.phar`);
     const pharynxPath = yield tc.downloadTool(`https://github.com/SOF3/pharynx/releases/download/${pharynxVersion}/pharynx.phar`);
     const outputId = crypto.randomBytes(8).toString("hex");
     const outputDir = path.join("/tmp", outputId);
