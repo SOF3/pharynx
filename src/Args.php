@@ -248,8 +248,8 @@ final class Args {
             throw Terminal::fatal("Failed to parse $path/composer.json as JSON: " . json_last_error_msg());
         }
 
-        if ($name !== null && isset($cj["type"]) && $cj["type"] !== "library") {
-            Terminal::print("Notice: skipping non-library dependency $path", true);
+        if ($name !== null && !isset($cj["extra"]["virion"])) {
+            Terminal::print("Notice: skipping non-virion dependency $path", true);
             return;
         }
 
@@ -288,15 +288,15 @@ final class Args {
             $this->inferComposerArgs($vendorPath, "$vendorPath/$depName", $depName, $depDedup, $epitope);
         }
 
-        if (isset($cj["x-virion"])) {
-            $virion = $cj["x-virion"];
+        if (isset($cj["extra"]["virion"])) {
+            $virion = $cj["extra"]["virion"];
 
             if (!is_array($virion)) {
-                throw Terminal::fatal("$path/composer.json has an invalid x-virion");
+                throw Terminal::fatal("$path/composer.json has an invalid extra.virion");
             }
 
             if (!isset($virion["spec"])) {
-                throw Terminal::fatal("$path/composer.json does not declare x-virion.spec");
+                throw Terminal::fatal("$path/composer.json does not declare extra.virion.spec");
             }
 
             $specVersion = $virion["spec"];
@@ -308,7 +308,7 @@ final class Args {
             }
 
             if (!isset($virion["namespace-root"])) {
-                throw Terminal::fatal("$path/composer.json does not declare x-virion.namespace-root");
+                throw Terminal::fatal("$path/composer.json does not declare extra.virion.namespace-root");
             }
 
             $antigen = $virion["namespace-root"];
