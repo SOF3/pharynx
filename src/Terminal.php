@@ -14,8 +14,8 @@ final class Terminal {
         exit(1);
     }
 
-    public static function print(string $message, bool $verbose) : void {
-        if ($verbose) {
+    public static function print(string $message, bool $shouldPrint) : void {
+        if ($shouldPrint) {
             echo date("[H:i:s] "), $message, PHP_EOL;
         }
     }
