@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace SOFe\Pharynx;
 
+use Composer\Console\Application;
 use SOFe\Pharynx\Virion\VirionProcessor;
+use Symfony\Component\Console\Input\ArgvInput;
 
 use function array_unshift;
 use function basename;
@@ -187,6 +189,11 @@ final class Args {
 
                 $composer = $inputDir;
             }
+
+            Terminal::print("Running `composer install` for plugin", true);
+            $composerApp = new Application();
+            $composerApp->setAutoExit(false);
+            $composerApp->run(new ArgvInput(["composer", "install", "--ignore-platform-reqs"]));
 
             $depDedup = [];
             $args->inferComposerArgs($composer . "/vendor", $composer, null, $depDedup, $epitope);
