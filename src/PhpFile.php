@@ -154,16 +154,12 @@ final class PhpFile {
         while ($i < count($tokens)) {
             $token = $tokens[$i];
 
-            if ($token->id === null || $token->id === T_CURLY_OPEN) {
+            if ($token->id === null || $token->id === T_CURLY_OPEN || $token->id === T_DOLLAR_OPEN_CURLY_BRACES) {
                 $punct = trim($token->code);
-                if ($punct === "{") {
-                    $pairs += 1;
-                } elseif ($punct === "}") {
-                    $pairs -= 1;
-                    if ($pairs === 0) {
-                        $until = $i + 1;
-                        break;
-                    }
+                $pairs += substr_count($punct, "{") - substr_count($punct, "}");
+                if ($pairs === 0) {
+                    $until = $i + 1;
+                    break;
                 }
             }
 
