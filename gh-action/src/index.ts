@@ -74,12 +74,10 @@ const httpClient = new http.HttpClient("pharynx-action")
             const srcBranch = github.context.ref.split("/").slice(2).join("/")
             const stageBranch = `poggit/${srcBranch}`
 
-            const checkoutExitCode = await exec.exec("git", ["checkout", stageBranch])
+            await exec.exec("git", ["fetch", "origin"])
+            const checkoutExitCode = await exec.exec("git", ["checkout", stageBranch], {ignoreReturnCode: true})
             if(checkoutExitCode !== 0) {
-                const orphanExitCode = await exec.exec("git", ["checkout", "-b", stageBranch])
-                if(orphanExitCode !== 0) {
-                    return core.setFailed(`git checkout --orphan exited with ${orphanExitCode}`)
-                }
+                await exec.exec("git", ["checkout", "-b", stageBranch])
 
                 const pluginYmlBuf = await fsPromises.readFile(path.join(outputDir, "plugin.yml"), "utf8")
                 const pluginYml: any = await yaml.load(pluginYmlBuf)
@@ -92,42 +90,34 @@ const httpClient = new http.HttpClient("pharynx-action")
                     projects: {
                         [pluginName]: {
                             path: ".",
+                            lint: false,
                         },
                     },
                 }))
             }
 
-           if(await exec.exec("git", ["rm", "-r", "--cached", "-f", "."]) !== 0) {
-                return core.setFailed("cannot clean git directory")
-            }
+           await exec.exec("git", ["rm", "-r", "--cached", "-f", "."])
 
             const addArgs = ["add", ".poggit.yml"]
             if(await fsExists("LICENSE")) {
                 addArgs.push("LICENSE")
             }
-            if(await exec.exec("git", addArgs) !== 0) {
-                return core.setFailed("cannot add files")
-            }
+            await exec.exec("git", addArgs)
 
-            if(await exec.exec("git", ["clean", "-dfxf"]) !== 0) {
-                return core.setFailed("cannot clean files")
-            }
+            await exec.exec("git", ["clean", "-dfxf"])
 
             await io.cp(outputDir, ".", {recursive: true, copySourceDirectory: false})
+            await exec.exec("git", ["add", "."])
 
-            if(await exec.exec("git", [
+            await exec.exec("git", [
                 "-c", "user.name=github-actions[bot]",
                 "-c", "user.email=41898282+github-actions[bot]@users.noreply.github.com",
                 "commit",
                 "-m",
                 `stage(${headCommit.id}): ${headCommit.message}`,
-            ]) !== 0) {
-                return core.setFailed("cannot create commit")
-            }
+            ])
 
-            if(await exec.exec("git", ["push", "origin", stageBranch]) !== 0) {
-                return core.setFailed("cannot clean files")
-            }
+            await exec.exec("git", ["push", "origin", stageBranch])
         } // else, nothing to build
     }
 })()
