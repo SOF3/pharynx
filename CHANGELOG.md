@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.3.2
+
+### Features
+
+- Run `composer install` automaticlaly if `-c` is passed
+
 ## 0.3.1
 
 ### Fixes
