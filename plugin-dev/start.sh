@@ -7,8 +7,15 @@ PLUGIN_PATH="dev"
 
 compile_plugin() {
 	export PHP_BINARY PLUGIN_PATH PHARYNX_PATH
-	"$PHP_BINARY" -dphar.readonly=0 "$PHARYNX_PATH" -i $PLUGIN_PATH -p=plugins/pharynx-output.phar
-	"$PHP_BINARY" -dphar.readonly=0 "$DIR"/bootstrap-plugin-dev.php plugins/pharynx-output.phar
+	local COMPOSER=""
+	if [[ -f $PLUGIN_PATH/composer.json ]]; then
+		COMPOSER=="-c"
+	fi
+	"$PHP_BINARY" -dphar.readonly=0 "$PHARYNX_PATH" "$COMPOSER" -i $PLUGIN_PATH -p=plugins/pharynx-output.phar
+
+	if [[ ! -f $PLUGIN_PATH/composer.json ]]; then
+		"$PHP_BINARY" -dphar.readonly=0 "$DIR"/bootstrap-plugin-dev.php plugins/pharynx-output.phar
+	fi
 }
 
 DIR="$(cd -P "$( dirname "${BASH_SOURCE[0]}" )" && pwd)"

@@ -14,15 +14,6 @@ const additionalSources = core.getInput("additionalSources").split(":").filter(s
 ;(async () => {
 	let composerPharPath: string
 
-	if(composer) {
-        core.info(`Downloading composer from https://github.com/composer/composer/releases/download/${composerVersion}/composer.phar`)
-        const download = await tc.downloadTool(`https://github.com/composer/composer/releases/download/${composerVersion}/composer.phar`)
-        const cachePath = await tc.cacheFile(download, "composer.phar", "composer", composerVersion)
-        composerPharPath = path.join(cachePath, "composer.phar")
-
-        await exec.exec("php", [composerPharPath, "install", "--no-interaction", "--ignore-platform-reqs"])
-	}
-
     core.info(`Downloading pharynx from https://github.com/SOF3/pharynx/releases/download/${pharynxVersion}/pharynx.phar`)
     const pharynxDownload = await tc.downloadTool(`https://github.com/SOF3/pharynx/releases/download/${pharynxVersion}/pharynx.phar`)
     const pharynxCachePath = await tc.cacheFile(pharynxDownload, "pharynx.phar", "pharynx", pharynxVersion)
