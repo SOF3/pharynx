@@ -116,6 +116,7 @@ const httpClient = new http.HttpClient("pharynx-action");
             yield exec.exec("git", addArgs);
             yield exec.exec("git", ["clean", "-dfxf"]);
             yield io.cp(outputDir, ".", { recursive: true, copySourceDirectory: false });
+            yield exec.exec("git", ["add", "."]);
             yield exec.exec("git", [
                 "-c", "user.name=github-actions[bot]",
                 "-c", "user.email=41898282+github-actions[bot]@users.noreply.github.com",
