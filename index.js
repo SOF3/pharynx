@@ -91,12 +91,9 @@ const httpClient = new http.HttpClient("pharynx-action");
         if (headCommit !== null) {
             const srcBranch = github.context.ref.split("/").slice(2).join("/");
             const stageBranch = `poggit/${srcBranch}`;
-            const checkoutExitCode = yield exec.exec("git", ["checkout", stageBranch]);
+            const checkoutExitCode = yield exec.exec("git", ["checkout", stageBranch], { ignoreReturnCode: true });
             if (checkoutExitCode !== 0) {
-                const orphanExitCode = yield exec.exec("git", ["checkout", "-b", stageBranch]);
-                if (orphanExitCode !== 0) {
-                    return core.setFailed(`git checkout --orphan exited with ${orphanExitCode}`);
-                }
+                yield exec.exec("git", ["checkout", "-b", stageBranch]);
                 const pluginYmlBuf = yield fsPromises.readFile(path.join(outputDir, "plugin.yml"), "utf8");
                 const pluginYml = yield yaml.load(pluginYmlBuf);
                 if (typeof pluginYml !== "object" || pluginYml === null || typeof pluginYml.name !== "string") {
@@ -111,32 +108,22 @@ const httpClient = new http.HttpClient("pharynx-action");
                     },
                 }));
             }
-            if ((yield exec.exec("git", ["rm", "-r", "--cached", "-f", "."])) !== 0) {
-                return core.setFailed("cannot clean git directory");
-            }
+            yield exec.exec("git", ["rm", "-r", "--cached", "-f", "."]);
             const addArgs = ["add", ".poggit.yml"];
             if (yield fsExists("LICENSE")) {
                 addArgs.push("LICENSE");
             }
-            if ((yield exec.exec("git", addArgs)) !== 0) {
-                return core.setFailed("cannot add files");
-            }
-            if ((yield exec.exec("git", ["clean", "-dfxf"])) !== 0) {
-                return core.setFailed("cannot clean files");
-            }
+            yield exec.exec("git", addArgs);
+            yield exec.exec("git", ["clean", "-dfxf"]);
             yield io.cp(outputDir, ".", { recursive: true, copySourceDirectory: false });
-            if ((yield exec.exec("git", [
+            yield exec.exec("git", [
                 "-c", "user.name=github-actions[bot]",
                 "-c", "user.email=41898282+github-actions[bot]@users.noreply.github.com",
                 "commit",
                 "-m",
                 `stage(${headCommit.id}): ${headCommit.message}`,
-            ])) !== 0) {
-                return core.setFailed("cannot create commit");
-            }
-            if ((yield exec.exec("git", ["push", "origin", stageBranch])) !== 0) {
-                return core.setFailed("cannot clean files");
-            }
+            ]);
+            yield exec.exec("git", ["push", "origin", stageBranch]);
         } // else, nothing to build
     }
 }))();
