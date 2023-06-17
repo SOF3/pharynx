@@ -34,7 +34,7 @@ jobs:
           set -e
           mv gh-action/dist /tmp/action-dist
           git fetch --all
-          git checkout v0.1 || git checkout -b v0.1
+          git checkout v0.2 || git checkout -b v0.2
           git rm -r .
           mv /tmp/action-dist/* .
           git add -A
@@ -42,4 +42,4 @@ jobs:
               -c user.email="41898282+github-actions[bot]@users.noreply.github.io" \
               commit --allow-empty \
               -m "Update action branch for ${{github.sha}}"
-          git push -u origin v0.1
+          git push -u origin v0.2
