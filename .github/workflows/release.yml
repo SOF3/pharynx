@@ -12,7 +12,7 @@ jobs:
       fail-fast: false
       matrix:
         php-version:
-          - "8.0.11"
+          - "8.2"
     steps:
       - uses: actions/checkout@v2
       - uses: pmmp/setup-php-action@e232f72a4330a07aae8418e8aa56b64efcdda636
