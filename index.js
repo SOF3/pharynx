@@ -105,6 +105,7 @@ const httpClient = new http.HttpClient("pharynx-action");
                     projects: {
                         [pluginName]: {
                             path: ".",
+                            lint: false,
                         },
                     },
                 }));
