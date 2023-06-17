@@ -44,13 +44,6 @@ const pluginDir = core.getInput("plugin-dir");
 const additionalSources = core.getInput("additionalSources").split(":").filter(s => s.length > 0);
 (() => __awaiter(void 0, void 0, void 0, function* () {
     let composerPharPath;
-    if (composer) {
-        core.info(`Downloading composer from https://github.com/composer/composer/releases/download/${composerVersion}/composer.phar`);
-        const download = yield tc.downloadTool(`https://github.com/composer/composer/releases/download/${composerVersion}/composer.phar`);
-        const cachePath = yield tc.cacheFile(download, "composer.phar", "composer", composerVersion);
-        composerPharPath = path.join(cachePath, "composer.phar");
-        yield exec.exec("php", [composerPharPath, "install", "--no-interaction", "--ignore-platform-reqs"]);
-    }
     core.info(`Downloading pharynx from https://github.com/SOF3/pharynx/releases/download/${pharynxVersion}/pharynx.phar`);
     const pharynxDownload = yield tc.downloadTool(`https://github.com/SOF3/pharynx/releases/download/${pharynxVersion}/pharynx.phar`);
     const pharynxCachePath = yield tc.cacheFile(pharynxDownload, "pharynx.phar", "pharynx", pharynxVersion);
