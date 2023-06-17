@@ -12,10 +12,13 @@ inputs:
     default: "2.5.5"
   pharynx-version:
     description: "Pharynx version to use"
-    default: "0.3.0"
+    default: "latest"
   additional-sources:
     description: "Additional sources other than {plugin-dir}/src, separated by colon, absolute or relative to workspace"
     default: ""
+  stage-poggit:
+    description: "Stage pharynx output to a new branch for Poggit"
+    default: "true"
 
 outputs:
   output-phar:
