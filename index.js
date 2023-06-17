@@ -91,6 +91,7 @@ const httpClient = new http.HttpClient("pharynx-action");
         if (headCommit !== null) {
             const srcBranch = github.context.ref.split("/").slice(2).join("/");
             const stageBranch = `poggit/${srcBranch}`;
+            yield exec.exec("git", ["fetch", "origin"]);
             const checkoutExitCode = yield exec.exec("git", ["checkout", stageBranch], { ignoreReturnCode: true });
             if (checkoutExitCode !== 0) {
                 yield exec.exec("git", ["checkout", "-b", stageBranch]);
