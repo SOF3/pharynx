@@ -11,8 +11,8 @@ compile_plugin() {
 	if [[ -f $PLUGIN_PATH/composer.json ]]; then
 		COMPOSER=="-c"
 	fi
-	"$PHP_BINARY" -dphar.readonly=0 "$PHARYNX_PATH" "$COMPOSER" -i $PLUGIN_PATH -p=plugins/pharynx-output.phar
-
+	"$PHP_BINARY" -dphar.readonly=0 "$PHARYNX_PATH" $COMPOSER -i "$PLUGIN_PATH" -p=plugins/pharynx-output.phar
+ 
 	if [[ ! -f $PLUGIN_PATH/composer.json ]]; then
 		"$PHP_BINARY" -dphar.readonly=0 "$DIR"/bootstrap-plugin-dev.php plugins/pharynx-output.phar
 	fi
