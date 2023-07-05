@@ -263,11 +263,15 @@ final class Args {
         Terminal::print("Info: including source paths from $name", $this->verbose);
 
         if (isset($cj["autoload"])) {
-            foreach ($cj["autoload"]["psr-0"] ?? [] as $src) {
-                $this->sourceRoots[] = $path . "/" . $src;
+            foreach ($cj["autoload"]["psr-0"] ?? [] as $srcs) {
+                foreach($srcs as $src) {
+                    $this->sourceRoots[] = $path . "/" . $src;
+                }
             }
-            foreach ($cj["autoload"]["psr-4"] ?? [] as $src) {
-                $this->sourceRoots[] = $path . "/" . $src;
+            foreach ($cj["autoload"]["psr-4"] ?? [] as $srcs) {
+                foreach($srcs as $src) {
+                    $this->sourceRoots[] = $path . "/" . $src;
+                }
             }
             foreach ($cj["autoload"]["classmap"] ?? [] as $src) {
                 $this->sourceRoots[] = $path . "/" . $src;
