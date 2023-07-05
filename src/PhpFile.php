@@ -4,11 +4,14 @@ declare(strict_types=1);
 
 namespace SOFe\Pharynx;
 
+use ParseError;
+
 use function array_slice;
 use function assert;
 use function count;
 use function defined;
 use function is_array;
+use function realpath;
 use function substr_count;
 use function token_get_all;
 use function trim;
@@ -29,7 +32,12 @@ final class PhpFile {
         Terminal::print("Parsing $filePath", $verbose);
 
         $phpCode = Files::read($filePath);
-        $rawTokens = token_get_all($phpCode, TOKEN_PARSE);
+        try {
+            $rawTokens = token_get_all($phpCode, TOKEN_PARSE);
+        } catch(ParseError $e) {
+            $realpath = realpath($filePath);
+            throw Terminal::fatal("Syntax error: {$e->getMessage()} on {$realpath}:{$e->getLine()}");
+        }
 
         $tokens = [];
 

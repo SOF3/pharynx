@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace SOFe\Pharynx\Virion;
 
+use ParseError;
 use RuntimeException;
 use SOFe\Pharynx\Processor;
+use SOFe\Pharynx\Terminal;
+
 use function is_string;
 use function preg_match;
 use function str_ends_with;
@@ -34,22 +37,27 @@ final class VirionProcessor implements Processor {
                 $file->namespace = $this->epitope . "\\" . $file->namespace;
             }
 
-            $file->header = $this->replace($file->header);
+            $file->header = $this->replace($file->header, $file->originalPath);
 
             foreach ($file->items as $item) {
-                $item->code = $this->replace($item->code);
+                $item->code = $this->replace($item->code, $file->originalPath);
             }
         }
     }
 
-    private function replace(string &$code) : string {
+    private function replace(string &$code, string $originalPath) : string {
         $hasHeader = str_starts_with($code, "<?php");
         $parsedCode = $code;
         if (!$hasHeader) {
             $parsedCode = "<?php\n$code";
         }
 
-        $tokens = token_get_all($parsedCode, TOKEN_PARSE);
+        try {
+            $tokens = token_get_all($parsedCode, TOKEN_PARSE);
+        } catch(ParseError $e) {
+            throw Terminal::fatal("Syntax error: {$e->getMessage()} on {$originalPath}:{$e->getLine()}");
+        }
+
         $output = "";
         foreach ($tokens as $i => $token) {
             if (!$hasHeader && $i === 0 && $token[0] === T_OPEN_TAG) {
