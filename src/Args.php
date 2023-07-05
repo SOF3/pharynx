@@ -264,12 +264,12 @@ final class Args {
 
         if (isset($cj["autoload"])) {
             foreach ($cj["autoload"]["psr-0"] ?? [] as $srcs) {
-                foreach($srcs as $src) {
+                foreach((array) $srcs as $src) {
                     $this->sourceRoots[] = $path . "/" . $src;
                 }
             }
             foreach ($cj["autoload"]["psr-4"] ?? [] as $srcs) {
-                foreach($srcs as $src) {
+                foreach((array) $srcs as $src) {
                     $this->sourceRoots[] = $path . "/" . $src;
                 }
             }
