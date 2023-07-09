@@ -11,7 +11,9 @@ use Symfony\Component\Console\Input\ArgvInput;
 use function array_unshift;
 use function basename;
 use function bin2hex;
+use function chdir;
 use function count;
+use function getcwd;
 use function getopt;
 use function is_array;
 use function is_dir;
@@ -190,10 +192,13 @@ final class Args {
                 $composer = $inputDir;
             }
 
+            $oldCwd = Files::tryFalse(getcwd(), "get current workdir");
+            Files::tryFalse(chdir($composer), "chdir to $composer");
             Terminal::print("Running `composer install` for plugin", true);
             $composerApp = new Application();
             $composerApp->setAutoExit(false);
             $composerApp->run(new ArgvInput(["composer", "install", "--ignore-platform-reqs"]));
+            Files::tryFalse(chdir($oldCwd), "chdir back to $oldCwd");
 
             $depDedup = [];
             $args->inferComposerArgs($composer . "/vendor", $composer, null, $depDedup, $epitope);
