@@ -9,7 +9,7 @@ compile_plugin() {
 	export PHP_BINARY PLUGIN_PATH PHARYNX_PATH
 	local COMPOSER=""
 	if [[ -f $PLUGIN_PATH/composer.json ]]; then
-		COMPOSER=="-c"
+		COMPOSER="-c"
 	fi
 	"$PHP_BINARY" -dphar.readonly=0 "$PHARYNX_PATH" $COMPOSER -i "$PLUGIN_PATH" -p=plugins/pharynx-output.phar
  
