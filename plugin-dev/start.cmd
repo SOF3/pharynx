@@ -33,7 +33,7 @@ if exist PocketMine-MP.phar (
 	exit 1
 )
 
-%PHP_BINARY% -dphar.readonly=0 pharynx.phar -i %PLUGIN_PATH% -p=plugins\pharynx-output.phar
+%PHP_BINARY% -dphar.readonly=0 pharynx.phar -c -i %PLUGIN_PATH% -p=plugins\pharynx-output.phar
 %PHP_BINARY% -dphar.readonly=0 bootstrap-plugin-dev.php plugins\pharynx-output.phar
 
 if exist bin\mintty.exe (
