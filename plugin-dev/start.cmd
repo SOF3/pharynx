@@ -2,7 +2,7 @@
 TITLE PocketMine-MP server software for Minecraft: Bedrock Edition
 cd /d %~dp0
 
-set PLUGIN_PATH=dev
+set PLUGIN_PATH=plugin_source/MyPlugin
 
 set PHP_BINARY=
 

@@ -2,20 +2,26 @@
 
 # Modified from https://github.com/pmmp/PocketMine-MP/blob/stable/start.sh
 
-# Change this to the absolute path to your plugin
-PLUGIN_PATH="dev"
+# Change this to the paths to your plugins.
+# If you have multiple plugins, write one path on each line.
+PLUGIN_PATHS=(
+	"plugin_source/MyPlugin"
+)
 
 compile_plugin() {
-	export PHP_BINARY PLUGIN_PATH PHARYNX_PATH
-	local COMPOSER=""
-	if [[ -f $PLUGIN_PATH/composer.json ]]; then
-		COMPOSER="-c"
-	fi
-	"$PHP_BINARY" -dphar.readonly=0 "$PHARYNX_PATH" $COMPOSER -i "$PLUGIN_PATH" -p=plugins/pharynx-output.phar
- 
-	if [[ ! -f $PLUGIN_PATH/composer.json ]]; then
-		"$PHP_BINARY" -dphar.readonly=0 "$DIR"/bootstrap-plugin-dev.php plugins/pharynx-output.phar
-	fi
+	for index in ${!PLUGIN_PATHS[@]}; do
+		export PHP_BINARY PHARYNX_PATH
+		export PLUGIN_PATH="${PLUGIN_PATHS[$index]}"
+		local COMPOSER=""
+		if [[ -f "${PLUGIN_PATH}/composer.json" ]]; then
+			COMPOSER="-c"
+		fi
+		"$PHP_BINARY" -dphar.readonly=0 "$PHARYNX_PATH" $COMPOSER -i "$PLUGIN_PATH" -p=plugins/pharynx-output-${i}.phar
+
+		if [[ ! -f "${PLUGIN_PATH}/composer.json" ]]; then
+			"$PHP_BINARY" -dphar.readonly=0 "$DIR"/bootstrap-plugin-dev.php plugins/pharynx-output.phar
+		fi
+	done
 }
 
 DIR="$(cd -P "$( dirname "${BASH_SOURCE[0]}" )" && pwd)"

@@ -28,5 +28,6 @@ EXAMPLE
 Download start.cmd/start.sh, pharynx.phar and bootstrap-plugin-dev.php from [releases](https://github.com/SOF3/pharynx/releases)
 and copy them to your PocketMine install directory.
 Replace PocketMine's start.cmd/start.sh with the one you downloaded.
-Edit start.sh/start.cmd and change the `PLUGIN_PATH` from `"dev"` to your plugin path (the directory containing plugin.yml).
+Edit start.sh/start.cmd and change `"plugin_source/MyPlugin"` to the plugin(s) to build with pharynx
+(only start.sh supports multiple plugins).
 Then just start the server as usual!
