@@ -8,6 +8,7 @@ use Composer\Console\Application;
 use SOFe\Pharynx\Virion\VirionProcessor;
 use Symfony\Component\Console\Input\ArgvInput;
 
+use function array_push;
 use function array_unshift;
 use function basename;
 use function bin2hex;
@@ -33,6 +34,9 @@ use function version_compare;
 use function yaml_parse_file;
 
 final class Args {
+    /** @var array<string, true> for virion processor deduplication when transitive dependency is repeated */
+    private array $inferredComposer = [];
+
     /**
      * @param array{string, string}[] $inputFiles
      * @param string[] $sourceRoots
@@ -156,7 +160,7 @@ final class Args {
         $antigens = isset($opts["a"]) ? (array) $opts["a"] : [];
 
         foreach ($antigens as $antigen) {
-            $processors[] = new VirionProcessor($antigen, $epitope);
+            $processors[] = new VirionProcessor($antigen, $epitope, null, null);
         }
 
         $args = new self(
@@ -254,6 +258,14 @@ final class Args {
      * @param array<string, true> $depDedup
      */
     private function inferComposerArgs(string $vendorPath, string $path, ?string $name, array &$depDedup, string $epitope) : void {
+        if ($name !== null) {
+            if (isset($this->inferredComposer[$name])) {
+                return;
+            }
+
+            $this->inferredComposer[$name] = true;
+        }
+
         $cjString = Files::read($path . "/composer.json");
         $cj = json_decode($cjString, true);
         if (json_last_error() !== JSON_ERROR_NONE) {
@@ -267,24 +279,26 @@ final class Args {
 
         Terminal::print("Info: including source paths from $name", $this->verbose);
 
+        $packageSourceRoots = [];
         if (isset($cj["autoload"])) {
             foreach ($cj["autoload"]["psr-0"] ?? [] as $srcs) {
                 foreach ((array) $srcs as $src) {
-                    $this->sourceRoots[] = $path . "/" . $src;
+                    $packageSourceRoots[] = $path . "/" . $src;
                 }
             }
             foreach ($cj["autoload"]["psr-4"] ?? [] as $srcs) {
                 foreach ((array) $srcs as $src) {
-                    $this->sourceRoots[] = $path . "/" . $src;
+                    $packageSourceRoots[] = $path . "/" . $src;
                 }
             }
             foreach ($cj["autoload"]["classmap"] ?? [] as $src) {
-                $this->sourceRoots[] = $path . "/" . $src;
+                $packageSourceRoots[] = $path . "/" . $src;
             }
             foreach ($cj["autoload"]["files"] ?? [] as $src) {
-                $this->sourceRoots[] = $path . "/" . $src;
+                $packageSourceRoots[] = $path . "/" . $src;
             }
         }
+        array_push($this->sourceRoots, ...$packageSourceRoots);
 
         $depDedup = [];
         foreach ($cj["require"] ?? [] as $depName => $_) {
@@ -316,7 +330,7 @@ final class Args {
             }
 
             $specVersion = $virion["spec"];
-            if (version_compare($specVersion, "3.0", ">")) {
+            if (version_compare($specVersion, "3.1", ">")) {
                 throw Terminal::fatal("$path/composer.json requires a new virion spec version $specVersion which is not supported by this version of pharynx");
             }
             if (version_compare($specVersion, "3.0", "<")) {
@@ -328,7 +342,8 @@ final class Args {
             }
 
             $antigen = $virion["namespace-root"];
-            $this->processors[] = new VirionProcessor($antigen, $epitope);
+            $shared = $virion["shared-namespace-root"] ?? null;
+            $this->processors[] = new VirionProcessor($antigen, $epitope, $shared, $packageSourceRoots);
             Terminal::print("Info: namespace root $antigen will be shaded", $this->verbose);
         } elseif ($name !== null) { // not root
             Terminal::print("Warning: dependency {$name} does not declare a namespace root, please consider declaring it in parent libraries", true);

@@ -6,6 +6,8 @@ namespace SOFe\Pharynx\Virion;
 
 use ParseError;
 use RuntimeException;
+use SOFe\Pharynx\Files;
+use SOFe\Pharynx\PhpFile;
 use SOFe\Pharynx\Processor;
 use SOFe\Pharynx\Terminal;
 
@@ -19,7 +21,10 @@ use function token_get_all;
 final class VirionProcessor implements Processor {
     private string $antigen;
 
-    public function __construct(string $antigen, private string $epitope) {
+    /**
+     * @param ?list<string> $sourceRoots
+     */
+    public function __construct(string $antigen, private string $epitope, private ?string $shared, private ?array $sourceRoots) {
         if (!preg_match('#^[a-zA-Z0-9_]+(\\\\[a-zA-Z0-9_]+)+$#', $antigen, $matches)) {
             echo "\"$antigen\" is not a valid class name";
             exit(1);
@@ -31,10 +36,30 @@ final class VirionProcessor implements Processor {
         $this->antigen = $antigen;
     }
 
+    /**
+     * @param PhpFile[] $files
+     */
     public function process(array &$files) : void {
+        $newFiles = [];
         foreach ($files as $file) {
-            if ($this->matches($file->namespace)) {
+            if (self::matches($file->namespace, $this->antigen)) {
                 $file->namespace = $this->epitope . "\\" . $file->namespace;
+            } elseif ($this->shared !== null && self::matches($file->namespace, $this->shared)) {
+                // no need to change
+            } elseif ($this->sourceRoots !== null) {
+                // validate that classes from virions are all under antigen
+                $isFromVirion = false;
+                foreach ($this->sourceRoots as $sourceRoot) {
+                    if (str_starts_with(Files::realpath($file->originalPath), Files::realpath($sourceRoot))) {
+                        $isFromVirion = true;
+                        break;
+                    }
+                }
+
+                if ($isFromVirion) {
+                    Terminal::print("Cannot include {$file->originalPath} for virion because {$file->namespace} is not under the namespace root {$this->antigen} or the shared namespace root {$this->shared}", true);
+                    continue;
+                }
             }
 
             $file->header = $this->replace($file->header, $file->originalPath);
@@ -42,7 +67,11 @@ final class VirionProcessor implements Processor {
             foreach ($file->items as $item) {
                 $item->code = $this->replace($item->code, $file->originalPath);
             }
+
+            $newFiles[] = $file;
         }
+
+        $files = $newFiles;
     }
 
     private function replace(string &$code, string $originalPath) : string {
@@ -68,9 +97,9 @@ final class VirionProcessor implements Processor {
                 $output .= $token;
             } else {
                 [$tokenId, $tokenString] = $token;
-                if ($tokenId === T_NAME_QUALIFIED && $this->matches($tokenString)) {
+                if ($tokenId === T_NAME_QUALIFIED && self::matches($tokenString, $this->antigen)) {
                     $tokenString = $this->epitope . "\\" . $tokenString;
-                } elseif ($tokenId === T_NAME_FULLY_QUALIFIED && $this->matches(substr($tokenString, 1))) {
+                } elseif ($tokenId === T_NAME_FULLY_QUALIFIED && self::matches(substr($tokenString, 1), $this->antigen)) {
                     $tokenString = "\\" . $this->epitope . $tokenString;
                 }
                 $output .= $tokenString;
@@ -80,7 +109,7 @@ final class VirionProcessor implements Processor {
         return $output;
     }
 
-    private function matches(string $token) : bool {
-        return $this->antigen === $token || str_starts_with($token, $this->antigen . "\\");
+    private static function matches(string $token, string $prefix) : bool {
+        return $prefix === $token || str_starts_with($token, $prefix . "\\");
     }
 }

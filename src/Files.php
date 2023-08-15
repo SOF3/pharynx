@@ -17,6 +17,7 @@ use function is_link;
 use function mkdir;
 use function opendir;
 use function readdir;
+use function realpath;
 use function rmdir;
 use function unlink;
 
@@ -50,6 +51,10 @@ final class Files {
 
     public static function read(string $path) : string {
         return self::tryFalse(@file_get_contents($path), "read file $path");
+    }
+
+    public static function realpath(string $path) : string {
+        return self::tryFalse(@realpath($path), "canonicalize $path");
     }
 
     /**
