@@ -300,7 +300,6 @@ final class Args {
         }
         array_push($this->sourceRoots, ...$packageSourceRoots);
 
-        $depDedup = [];
         foreach ($cj["require"] ?? [] as $depName => $_) {
             if (self::isPlatformPackage($depName)) {
                 continue;
@@ -311,7 +310,7 @@ final class Args {
             }
 
             if (isset($depDedup[$depName])) {
-                return;
+                continue;
             }
             $depDedup[$depName] = true;
 
