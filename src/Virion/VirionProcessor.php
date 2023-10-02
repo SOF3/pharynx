@@ -25,7 +25,7 @@ final class VirionProcessor implements Processor {
      * @param ?list<string> $sourceRoots
      */
     public function __construct(string $antigen, private string $epitope, private ?string $shared, private ?array $sourceRoots) {
-        if (!preg_match('#^[a-zA-Z0-9_]+(\\\\[a-zA-Z0-9_]+)+$#', $antigen, $matches)) {
+        if (!preg_match('#^\w+(?:\\\\\w+)+$#', $antigen, $matches)) {
             echo "\"$antigen\" is not a valid class name";
             exit(1);
         }
