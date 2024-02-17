@@ -124,7 +124,7 @@ const httpClient = new http.HttpClient("pharynx-action")
 
 async function fsExists(file: string): Promise<boolean> {
     try {
-        fsPromises.stat(file)
+        await fsPromises.stat(file)
         return true
     } catch(err) {
         if((err as NodeJS.ErrnoException).code === "ENOENT") {
