@@ -15,6 +15,7 @@ let pharynxVersion = core.getInput("pharynx-version")
 const pluginDir = core.getInput("plugin-dir")
 const additionalSources = core.getMultilineInput("additionalSources")
 const stagePoggit = core.getBooleanInput("stage-poggit")
+const additionalAssets = core.getMultilineInput("additional-assets")
 
 const httpClient = new http.HttpClient("pharynx-action")
 
@@ -101,6 +102,11 @@ const httpClient = new http.HttpClient("pharynx-action")
             const addArgs = ["add", ".poggit.yml"]
             if(await fsExists("LICENSE")) {
                 addArgs.push("LICENSE")
+            }
+            for(const additionalAsset of additionalAssets) {
+                if(await fsExists(additionalAsset)) {
+                    addArgs.push(additionalAsset)
+                }
             }
             await exec.exec("git", addArgs)
 
