@@ -133,7 +133,7 @@ const httpClient = new http.HttpClient("pharynx-action");
 function fsExists(file) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            fsPromises.stat(file);
+            yield fsPromises.stat(file);
             return true;
         }
         catch (err) {
