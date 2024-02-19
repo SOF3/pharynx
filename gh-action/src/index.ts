@@ -13,7 +13,7 @@ import {PushEvent} from '@octokit/webhooks-definitions/schema'
 const composer = core.getBooleanInput("composer")
 let pharynxVersion = core.getInput("pharynx-version")
 const pluginDir = core.getInput("plugin-dir")
-const additionalSources = core.getMultilineInput("additionalSources")
+const additionalSources = core.getMultilineInput("additional-sources")
 const stagePoggit = core.getBooleanInput("stage-poggit")
 
 const httpClient = new http.HttpClient("pharynx-action")
