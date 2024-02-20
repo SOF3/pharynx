@@ -20,7 +20,7 @@ inputs:
     description: "Stage pharynx output to a new branch for Poggit"
     default: "true"
   additional-assets:
-    description: "Additional assets other than LICENSE, .poggit.yml and plugin.yml, separated by colon, works the same as 'git add <pathspec>'"
+    description: "Additional assets other than LICENSE, .poggit.yml and plugin.yml, specify file per line, works the same as 'git add <pathspec>'"
     default: ""
 
 outputs:
