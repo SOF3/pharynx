@@ -47,6 +47,7 @@ let pharynxVersion = core.getInput("pharynx-version");
 const pluginDir = core.getInput("plugin-dir");
 const additionalSources = core.getMultilineInput("additional-sources");
 const stagePoggit = core.getBooleanInput("stage-poggit");
+const additionalAssets = core.getMultilineInput("additional-assets");
 const httpClient = new http.HttpClient("pharynx-action");
 (() => __awaiter(void 0, void 0, void 0, function* () {
     if (pharynxVersion === "latest") {
@@ -114,6 +115,11 @@ const httpClient = new http.HttpClient("pharynx-action");
             const addArgs = ["add", ".poggit.yml"];
             if (yield fsExists("LICENSE")) {
                 addArgs.push("LICENSE");
+            }
+            for (const additionalAsset of additionalAssets) {
+                if (yield fsExists(additionalAsset)) {
+                    addArgs.push(additionalAsset);
+                }
             }
             yield exec.exec("git", addArgs);
             yield exec.exec("git", ["clean", "-dfxf"]);
