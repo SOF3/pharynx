@@ -26,7 +26,7 @@ final class VirionProcessor implements Processor {
      */
     public function __construct(string $antigen, private string $epitope, private ?string $shared, private ?array $sourceRoots) {
         if (!preg_match('#^[a-zA-Z0-9_]+(\\\\[a-zA-Z0-9_]+)+$#', $antigen, $matches)) {
-            echo "\"$antigen\" is not a valid class name";
+            echo "\"$antigen\" is not a valid namespace root. Namespace root must have at least two path components, e.g. `SOF3\\Pharynx`.";
             exit(1);
         }
         if (str_ends_with($epitope, "\\")) {
