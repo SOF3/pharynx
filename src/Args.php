@@ -149,6 +149,10 @@ final class Args {
             $pluginYml = yaml_parse_file($inputDir . "/plugin.yml");
             if (isset($pluginYml["main"])) {
                 $main = $pluginYml["main"];
+				if (isset($pluginYml["src-namespace-prefix"])) {
+					$prefix = $pluginYml["src-namespace-prefix"];
+					Prefix::setPrefix("\\" . $prefix);
+				}
                 $lastNsSep = strrpos($main, "\\");
                 if ($lastNsSep !== false) {
                     $epitope = substr($main, 0, $lastNsSep + 1) . $epitope;

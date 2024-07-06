@@ -59,7 +59,7 @@ final class Main {
         }
 
         foreach ($files as $file) {
-            $nsDir = $outputDir . "/" . $args->outputSourceRoot . "/" . str_replace("\\", "/", $file->namespace);
+            $nsDir = $outputDir . "/" . $args->outputSourceRoot . Prefix::validatePrefix(str_replace("\\", "/", "\\" . $file->namespace));
             if (!file_exists($nsDir)) {
                 Files::mkdir($nsDir);
             }
