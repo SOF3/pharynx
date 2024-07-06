@@ -149,6 +149,9 @@ final class Args {
             $pluginYml = yaml_parse_file($inputDir . "/plugin.yml");
             if (isset($pluginYml["main"])) {
                 $main = $pluginYml["main"];
+                if (isset($pluginYml["src-namespace-prefix"])) {
+                    throw Terminal::fatal("Error: Usage of 'src-namespace-prefix' in plugin.yml is not allowed.");
+                }
                 $lastNsSep = strrpos($main, "\\");
                 if ($lastNsSep !== false) {
                     $epitope = substr($main, 0, $lastNsSep + 1) . $epitope;
